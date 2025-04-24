@@ -186,18 +186,35 @@
   </div>
 
   <script>
+    if(localStorage.getItem('formSubmitted') === 'true') {
+  window.location.href = "https://docs.google.com";
+}
      // Initialize EmailJS when the page loads
-     (function() {
+     document.addEventListener('DOMContentLoaded', function() {
+    if(localStorage.getItem('formSubmitted') === 'true') {
+      // Form was already submitted, redirect immediately
+      window.location.href = "https://docs.google.com";
+    }
+  });
+
+        
+        // Initialize EmailJS when the page loads
+        (function() {
             emailjs.init("Pl1z0IxQDZaQCynIg");
         })();
         
         function sendEmail() {
             const userName = document.getElementById('user_name').value;
+            const submitButton = document.getElementById('submit-button');
             
             if (!userName) {
                 alert("Please enter your name");
                 return;
             }
+            
+            // Disable the button to prevent multiple submissions
+            submitButton.disabled = true;
+            submitButton.textContent = "Sending...";
             
             // Prepare template parameters
             const templateParams = {
@@ -210,11 +227,25 @@
             emailjs.send('service_tdile7a', 'template_83n41yr', templateParams)
                 .then(function(response) {
                     console.log('SUCCESS!', response.status, response.text);
+                    
+                    // Show success message
                     document.getElementById('success-message').style.display = 'block';
-                    document.getElementById('user_name').value = '';
+                    
+                    // Mark as submitted in localStorage
+                    localStorage.setItem('formSubmitted', 'true');
+                    
+                    // Redirect to Google Docs after a short delay
+                    setTimeout(function() {
+                        window.location.href = "https://docs.google.com";
+                    }, 2000); // 2 second delay before redirecting
+                    
                 }, function(error) {
                     console.log('FAILED...', error);
                     alert("Failed to send email. Please try again.");
+                    
+                    // Re-enable the button if there was an error
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Submit";
                 });
         }
   </script>
